@@ -88,7 +88,9 @@ bot.on(['/ranking'], async (msg) => {
   }
 });
 
-
+/**
+ * Nuevo usuario en el chat
+ */
 bot.on(['newChatMembers'], async (msg) => {
   try {
     let user = new User({
@@ -109,13 +111,13 @@ bot.on(['newChatMembers'], async (msg) => {
 });
 
 /**
- * Lista de camellos
+ * Lista de contactos
  */
 bot.on(['/pillar'], async (msg) => {
   try {
     let dealers = await Contact.find({}).sort('-amount').exec();
     if(dealers.length<1)
-      msg.reply.text('No hay camellos todavía, puedes añadir con el comando /nuevocamello [nombre] [telefono] [qué vende]. Ej: /nuevocamello tatin 612487956 marihuana')
+      msg.reply.text('No hay contactos todavía, puedes añadir con el comando /nuevocontacto [nombre] [telefono] [qué vende]. Ej: /nuevocontacto tatin 612487956 widow')
     else
       msg.reply.text('Ya hay ->')
     const drug = msg.text.split(" ")[1];
@@ -128,7 +130,7 @@ bot.on(['/pillar'], async (msg) => {
 /**
  * Añadir nuevo camello
  */
-bot.on(['/nuevocamello'], async (msg) => {
+bot.on(['/nuevocontacto'], async (msg) => {
   try {
 
     if(msg.text.split(" ").length < 4){
