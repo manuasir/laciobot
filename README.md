@@ -1,7 +1,7 @@
-# laciobot
+# Laciobot
 Bot de Telegram para el grupo de lacios
 
-# Features:
+## Features:
 - Recomendar películas
 - Encuestas
 - Quedadas
