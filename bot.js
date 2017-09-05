@@ -3,14 +3,14 @@ const mongoose   = require('mongoose');
 const User       = require('./models/user');
 const Word       = require('./models/word');
 const Contact       = require('./models/contact');
-const config     = require('./config');
+//const config     = require('./config');
 const _          = require('lodash');
 
 // MongoDB connection
 mongoose.connect('mongodb://localhost/laciobot',{useMongoClient:true});
 mongoose.Promise = global.Promise;
 
-const token = config.TOKEN;
+const token = process.env.TOKEN;
 const bot = new TelegramBot(token);
 
 /**
