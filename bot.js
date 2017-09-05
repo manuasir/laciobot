@@ -7,9 +7,10 @@ const Contact       = require('./models/contact');
 const _          = require('lodash');
 
 // MongoDB connection
-mongoose.connect('mongodb://localhost/laciobot',{useMongoClient:true});
+mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
 mongoose.Promise = global.Promise;
 
+console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token);
 
