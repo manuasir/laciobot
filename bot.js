@@ -4,6 +4,7 @@ const User       = require('./models/user');
 const Word       = require('./models/word');
 const Contact       = require('./models/contact');
 //const config     = require('./config');
+const http          = require('http');
 const _          = require('lodash');
 
 // MongoDB connection
@@ -14,6 +15,7 @@ console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token);
 
+ http.createServer(function (request, response) {}).listen(3000);
 /**
  * Saludo
  */
@@ -166,6 +168,7 @@ bot.on(['/nuevocontacto'], async (msg) => {
 bot.on('sticker', (msg) => {
     return msg.reply.sticker('http://i.imgur.com/VRYdhuD.png', { asReply: true });
 });
+
 
 /**
  * Inicia el bot
