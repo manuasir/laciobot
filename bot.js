@@ -15,7 +15,7 @@ console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
 const bot = new TelegramBot(token);
 
- http.createServer(function (request, response) {}).listen(3000);
+ http.createServer(function (request, response) {}).listen(process.env.PORT || 5000);
 /**
  * Saludo
  */
