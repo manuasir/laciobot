@@ -11,6 +11,7 @@
     "lodash": "^4.17.4",
     "mongoose": "^4.11.9",
     "node-telegram-bot-api": "^0.28.0",
+    "request": "^2.81.0",
     "telebot": "^1.2.3"
   },
   "devDependencies": {},

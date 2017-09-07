@@ -3,17 +3,23 @@ const mongoose   = require('mongoose');
 const User       = require('./models/user');
 const Word       = require('./models/word');
 const Contact       = require('./models/contact');
+const request       = require('request');
 //const config     = require('./config');
 const http          = require('http');
 const _          = require('lodash');
 
 // MongoDB connection
-mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
+//mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
+mongoose.connect('mongodb://localhost/dev-laciobot');
+
 mongoose.Promise = global.Promise;
 
 console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
-const bot = new TelegramBot(token);
+const bot = new TelegramBot({
+    token:token,
+    usePlugins: ['askUser']
+});
 
  http.createServer(function (request, response) {}).listen(process.env.PORT || 5000);
 /**
@@ -22,6 +28,21 @@ const bot = new TelegramBot(token);
 bot.on(['/start', '/hola'], (msg) => {
     msg.reply.text('Hola '+ msg.from.username);
 });
+
+/**
+ * Devuelve una promised request
+ */
+function doRequest(url) {
+  return new Promise(function (resolve, reject) {
+    request(url, function (error, res, body) {
+      if (!error && res.statusCode == 200) {
+        resolve(body);
+      } else {
+        reject(error);
+      }
+    });
+  });
+}
 
 /**
  * Recibe un mensaje
@@ -56,6 +77,19 @@ bot.on('text', async (msg) => {
     }
 });
 
+/**
+ * Recibe un mensaje
+ */
+bot.on(['/dimeunapeli'], async (msg) => {
+    try {
+        const response = await doRequest('https://api.themoviedb.org/3/movie/550?api_key=fafb20e40a530b82d65bea4c6e7f28cd');
+        console.log(response)
+        return msg.reply.text(JSON.parse(response).original_title)
+          
+    } catch (err) {
+        throw err;
+    }
+});
 /**
  * Ranking de palabras
  */
