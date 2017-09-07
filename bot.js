@@ -44,6 +44,10 @@ function doRequest(url) {
   });
 }
 
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 /**
  * Recibe un mensaje
  */
@@ -82,11 +86,43 @@ bot.on('text', async (msg) => {
  */
 bot.on(['/dimeunapeli'], async (msg) => {
     try {
-        const response = await doRequest('https://api.themoviedb.org/3/movie/550?api_key=fafb20e40a530b82d65bea4c6e7f28cd');
-        console.log(response)
-        return msg.reply.text(JSON.parse(response).original_title)
-          
+        const indice = getRandomInt(0,1000)
+        const pickOne = getRandomInt(0,19)
+        console.log("el indice ",indice)
+        console.log("el escogido ",pickOne)
+        try {
+            const response = await doRequest('https://api.themoviedb.org/3/discover/movie?vote_average.gte=1&page='+indice+'&api_key=fafb20e40a530b82d65bea4c6e7f28cd&language=es');
+            
+            //console.log(response)
+            const unaPeli = JSON.parse(response);
+            const respJson = unaPeli.results[pickOne];
+            let puntuacion = "";
+
+            let puntos = (_.isUndefined(respJson.vote_average)) ? 'sin puntuacion' : respJson.vote_average ;
+            console.log("PUNTOS ",puntos)
+            if( typeof puntos == String)
+                puntuacion = 'sin puntuacion\n';
+            else if(puntos >= 7.5 )
+                puntuacion = "🥇 Puntuación media: "+puntos+"\n";
+            else if(puntos > 5)
+                puntuacion = "🥈Puntuación media: "+puntos+"\n";
+            else if(puntos <= 5)
+                puntuacion = "🥉 Puntuación media: "+puntos+"\n";
+            const poster = "https://image.tmdb.org/t/p/w500/"+respJson.poster_path;
+            //msg.reply.sticker(poster, { asReply: true });
+            msg.reply.text("🎬 Título original: "+respJson.original_title+"\n"+
+                puntuacion+
+                "📆 Fecha: "+respJson.release_date+"\n"+
+                "🎥 Género/s: "+_.map(respJson.genres, 'name')+"\n"+
+                "🎥 Popularidad: "+respJson.popularity+'\n'+
+                "🎥 Overview: "+respJson.overview+"\n")
+        
+          } catch (err) {
+        console.error("error en peticion api a moviedb ",err);
+        throw err;
+    }
     } catch (err) {
+        console.error("error en dimeunapeli ",err);
         throw err;
     }
 });
