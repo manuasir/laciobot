@@ -9,8 +9,8 @@ const http          = require('http');
 const _          = require('lodash');
 
 // MongoDB connection
-//mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
-mongoose.connect('mongodb://localhost/dev-laciobot');
+mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
+//mongoose.connect('mongodb://localhost/dev-laciobot');
 
 mongoose.Promise = global.Promise;
 
