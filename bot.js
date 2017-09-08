@@ -14,6 +14,10 @@ mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx
 
 mongoose.Promise = global.Promise;
 
+setInterval(function() {
+    http.get("http://laciobot.herokuapp.com");
+}, 300000); // every 5 minutes (300000)
+
 console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
 const bot = new TelegramBot({
