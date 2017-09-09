@@ -3,9 +3,11 @@ const mongoose   = require('mongoose');
 const User       = require('./models/user');
 const Word       = require('./models/word');
 const Contact       = require('./models/contact');
+const genres       = require('./utils/genres').genres;
 const request       = require('request');
 const http          = require('http');
 const _          = require('lodash');
+
 
 // MongoDB connection
 mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c',{useMongoClient:true});
@@ -17,7 +19,6 @@ setInterval(function() {
     http.get("http://laciobot.herokuapp.com");
 }, 1800000); // every 5 minutes (300000)
 
-console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
 const bot = new TelegramBot({
     token:token,
@@ -96,7 +97,6 @@ bot.on(['/dimeunapeli'], async (msg) => {
         const respJson = unaPeli.results[pickOne];
         let puntuacion = "";
         let puntos = (_.isUndefined(respJson.vote_average)) ? 'sin puntuacion' : respJson.vote_average ;
-        console.log("PUNTOS ",puntos)
         if( typeof puntos == String)
             puntuacion = 'sin puntuacion\n';
         else if(puntos >= 7.5 )
@@ -105,14 +105,19 @@ bot.on(['/dimeunapeli'], async (msg) => {
             puntuacion = "🥈Puntuación media: "+puntos+"\n";
         else if(puntos <= 5)
             puntuacion = "🥉 Puntuación media: "+puntos+"\n";
+
+        let gens = _.map(_.filter(genres,function(o){ if(respJson.genre_ids.includes(o.id)) return o.name }),'name');
+        let overview = (respJson.overview==="") ? 'no hay overview' : respJson.overview;
+        console.log(gens)
+
         const poster = "https://image.tmdb.org/t/p/w500/"+respJson.poster_path;
         //msg.reply.sticker(poster, { asReply: true });
         msg.reply.text("🎬 Título original: "+respJson.original_title+"\n"+
             puntuacion+
             "📆 Fecha: "+respJson.release_date+"\n"+
-            "🎥 Género/s: "+_.map(respJson.genres, 'name')+"\n"+
+            "🎥 Género/s: "+gens+"\n"+
             "🎥 Popularidad: "+respJson.popularity+'\n'+
-            "🎥 Overview: "+respJson.overview || 'no hay overview'+"\n")
+            "🎥 Overview: "+ overview +"\n")
     } catch (err) {
         console.error("error en dimeunapeli ",err);
         throw err;
