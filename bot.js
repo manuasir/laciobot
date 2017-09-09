@@ -4,19 +4,18 @@ const User       = require('./models/user');
 const Word       = require('./models/word');
 const Contact       = require('./models/contact');
 const request       = require('request');
-//const config     = require('./config');
 const http          = require('http');
 const _          = require('lodash');
 
 // MongoDB connection
-mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c');
+mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c',{useMongoClient:true});
 //mongoose.connect('mongodb://localhost/dev-laciobot');
 
 mongoose.Promise = global.Promise;
 
 setInterval(function() {
     http.get("http://laciobot.herokuapp.com");
-}, 300000); // every 5 minutes (300000)
+}, 1800000); // every 5 minutes (300000)
 
 console.log("env ",process.env.TOKEN);
 const token = process.env.TOKEN;
@@ -36,7 +35,7 @@ bot.on(['/start', '/hola'], (msg) => {
 /**
  * Devuelve una promised request
  */
-function doRequest(url) {
+const doRequest = async (url) => {
   return new Promise(function (resolve, reject) {
     request(url, function (error, res, body) {
       if (!error && res.statusCode == 200) {
@@ -48,7 +47,7 @@ function doRequest(url) {
   });
 }
 
-function getRandomInt(min, max) {
+const getRandomInt = (min, max) => {
     return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
@@ -92,39 +91,28 @@ bot.on(['/dimeunapeli'], async (msg) => {
     try {
         const indice = getRandomInt(0,1000)
         const pickOne = getRandomInt(0,19)
-        console.log("el indice ",indice)
-        console.log("el escogido ",pickOne)
-        try {
-            const response = await doRequest('https://api.themoviedb.org/3/discover/movie?vote_average.gte=1&page='+indice+'&api_key=fafb20e40a530b82d65bea4c6e7f28cd&language=es');
-            
-            //console.log(response)
-            const unaPeli = JSON.parse(response);
-            const respJson = unaPeli.results[pickOne];
-            let puntuacion = "";
-
-            let puntos = (_.isUndefined(respJson.vote_average)) ? 'sin puntuacion' : respJson.vote_average ;
-            console.log("PUNTOS ",puntos)
-            if( typeof puntos == String)
-                puntuacion = 'sin puntuacion\n';
-            else if(puntos >= 7.5 )
-                puntuacion = "🥇 Puntuación media: "+puntos+"\n";
-            else if(puntos > 5)
-                puntuacion = "🥈Puntuación media: "+puntos+"\n";
-            else if(puntos <= 5)
-                puntuacion = "🥉 Puntuación media: "+puntos+"\n";
-            const poster = "https://image.tmdb.org/t/p/w500/"+respJson.poster_path;
-            //msg.reply.sticker(poster, { asReply: true });
-            msg.reply.text("🎬 Título original: "+respJson.original_title+"\n"+
-                puntuacion+
-                "📆 Fecha: "+respJson.release_date+"\n"+
-                "🎥 Género/s: "+_.map(respJson.genres, 'name')+"\n"+
-                "🎥 Popularidad: "+respJson.popularity+'\n'+
-                "🎥 Overview: "+respJson.overview+"\n")
-        
-          } catch (err) {
-        console.error("error en peticion api a moviedb ",err);
-        throw err;
-    }
+        const response = await doRequest('https://api.themoviedb.org/3/discover/movie?vote_average.gte=1&page='+indice+'&api_key=fafb20e40a530b82d65bea4c6e7f28cd&language=es');
+        const unaPeli = JSON.parse(response);
+        const respJson = unaPeli.results[pickOne];
+        let puntuacion = "";
+        let puntos = (_.isUndefined(respJson.vote_average)) ? 'sin puntuacion' : respJson.vote_average ;
+        console.log("PUNTOS ",puntos)
+        if( typeof puntos == String)
+            puntuacion = 'sin puntuacion\n';
+        else if(puntos >= 7.5 )
+            puntuacion = "🥇 Puntuación media: "+puntos+"\n";
+        else if(puntos > 5)
+            puntuacion = "🥈Puntuación media: "+puntos+"\n";
+        else if(puntos <= 5)
+            puntuacion = "🥉 Puntuación media: "+puntos+"\n";
+        const poster = "https://image.tmdb.org/t/p/w500/"+respJson.poster_path;
+        //msg.reply.sticker(poster, { asReply: true });
+        msg.reply.text("🎬 Título original: "+respJson.original_title+"\n"+
+            puntuacion+
+            "📆 Fecha: "+respJson.release_date+"\n"+
+            "🎥 Género/s: "+_.map(respJson.genres, 'name')+"\n"+
+            "🎥 Popularidad: "+respJson.popularity+'\n'+
+            "🎥 Overview: "+respJson.overview || 'no hay overview'+"\n")
     } catch (err) {
         console.error("error en dimeunapeli ",err);
         throw err;
@@ -242,7 +230,6 @@ bot.on(['/nuevocontacto'], async (msg) => {
 bot.on('sticker', (msg) => {
     return msg.reply.sticker('http://i.imgur.com/VRYdhuD.png', { asReply: true });
 });
-
 
 /**
  * Inicia el bot
