@@ -108,8 +108,6 @@ bot.on(['/dimeunapeli'], async (msg) => {
 
         let gens = _.map(_.filter(genres,function(o){ if(respJson.genre_ids.includes(o.id)) return o.name }),'name');
         let overview = (respJson.overview==="") ? 'no hay overview' : respJson.overview;
-        console.log(gens)
-
         const poster = "https://image.tmdb.org/t/p/w500/"+respJson.poster_path;
         //msg.reply.sticker(poster, { asReply: true });
         msg.reply.text("🎬 Título original: "+respJson.original_title+"\n"+
