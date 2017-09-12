@@ -7,8 +7,9 @@ const genres       = require('./utils/genres').genres;
 const request       = require('request');
 const http          = require('http');
 const _          = require('lodash');
-
-
+const Entities = require('html-entities').XmlEntities;
+ 
+const entities = new Entities();
 // MongoDB connection
 mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c',{useMongoClient:true});
 //mongoose.connect('mongodb://localhost/dev-laciobot');
@@ -122,6 +123,37 @@ bot.on(['/dimeunapeli'], async (msg) => {
     }
 });
 
+
+bot.on(['/pregunta'], async (msg) => {
+    try {
+        const id = msg.from.id;
+        const pickOne = getRandomInt(0,49)
+        const response = await doRequest('https://opentdb.com/api.php?amount=50&category=11&type=multiple');
+        const unaPregunta = JSON.parse(response);
+        const respJson = unaPregunta.results[pickOne];
+        const arr = respJson.incorrect_answers.concat(respJson.correct_answer )
+        const pregunta = entities.decode(respJson.question,'gbk')+":\n"+arr+"\n";
+        console.log(respJson)
+        return bot.sendMessage(id, pregunta, {ask: 'pregunta'});
+
+    } catch (err) {
+        console.error("error en pregunta ",err);
+        throw err;
+    }
+});
+
+// Ask name event
+bot.on('ask.pregunta', msg => {
+
+    const id = msg.from.id;
+    const name = msg.text;
+
+    // Ask user age
+    msg.reply.text('Correcto');
+
+
+});
+
 /**
  * Recomienda una serie
  */
@@ -220,7 +252,7 @@ bot.on(['newChatMembers'], async (msg) => {
 /**
  * Lista de contactos
  */
-bot.on(['/pillar'], async (msg) => {
+bot.on(['/contactos'], async (msg) => {
     try {
         let dealers = await Contact.find({}).sort('-amount').exec();
         if(dealers.length<1)
@@ -231,7 +263,7 @@ bot.on(['/pillar'], async (msg) => {
                 str+="-----------"+parseInt(i+1)+"----------"+"\n";
                 str+="⌨️ nombre: "+dealers[i].name+"\n";
                 str+="☎️ tlf: "+dealers[i].tlf+"\n";
-                str+="✅ qué tiene: "+ _.join(dealers[i].drug)+"\n";
+                str+="✅ qué tiene: "+ _.join(dealers[i].stuff)+"\n";
             }
             msg.reply.text(str)
         }

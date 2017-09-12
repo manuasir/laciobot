@@ -12,7 +12,7 @@ let dealerSchema = new Schema({
     required: true,
     unique  : true
   },
-  drug  : {
+  stuff  : {
     type    : [String]
   }
 });

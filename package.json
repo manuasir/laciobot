@@ -8,11 +8,14 @@
   },
   "dependencies": {
     "express": "^4.15.4",
+    "google-translate": "^2.0.5",
+    "html-entities": "^1.2.1",
     "lodash": "^4.17.4",
     "mongoose": "^4.11.9",
     "node-telegram-bot-api": "^0.28.0",
     "request": "^2.81.0",
-    "telebot": "^1.2.3"
+    "telebot": "^1.2.3",
+    "urlencode": "^1.1.0"
   },
   "devDependencies": {},
   "scripts": {
