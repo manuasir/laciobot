@@ -4,9 +4,14 @@ const http          = require('http');
 const _          = require('lodash');
 
 // MongoDB connection
-mongoose.connect('mongodb://manuasir:mongodb@ds147072.mlab.com:47072/heroku_mctx4f0c',{useMongoClient:true});
-//mongoose.connect('mongodb://localhost/dev-laciobot');
+mongoose.connect('mongodb://manuasir:Mlab51617-@ds147964.mlab.com:47964/laciobot',{useMongoClient:true});
+
+// mongoose.connect('mongodb://localhost/dev-laciobot');
 mongoose.Promise = global.Promise;
+
+mongoose.connection.on('error',function(err){
+  console.error("el err",err)
+});
 
 //This is because of Heroku issues
 http.createServer(function (request, response) {}).listen(process.env.PORT || 5000);
