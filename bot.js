@@ -14,7 +14,7 @@ mongoose.connection.on('error',function(err){
 });
 
 //This is because of Heroku issues
-http.createServer(function (request, response) {}).listen(process.env.PORT || 5000);
+http.createServer(function (request, response) {}).listen(process.env.PORT || 3000);
 
 
 setInterval(function() {
