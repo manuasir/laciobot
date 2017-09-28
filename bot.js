@@ -14,12 +14,7 @@ mongoose.connection.on('error',function(err){
 });
 
 //This is because of Heroku issues
-http.createServer(function (request, response) {}).listen(process.env.PORT || 3000);
-
-
-setInterval(function() {
-  http.get("http://laciobot.herokuapp.com");
-}, 300000); // every 5 minutes (300000)
+http.createServer(function (request, response) {}).listen(process.env.PORT || 8081);
 
 const token = process.env.TOKEN;
 
