@@ -1,7 +1,6 @@
 const TelegramBot = require('telebot')
 const mongoose = require('mongoose')
 const http = require('http')
-const _ = require('lodash')
 
 // MongoDB connection
 const dbUrl = process.env.dburl
@@ -35,6 +34,7 @@ const conf = process.env.NODE === 'production' ? {
 
 const bot = new TelegramBot(conf)
 
-const init = require('./lib/index')(bot)
+// Traer las interfaces de Facade
+require('./lib/index')(bot)
 
 bot.start()
