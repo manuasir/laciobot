@@ -1,86 +1,40 @@
 const TelegramBot = require('telebot')
 const mongoose = require('mongoose')
+const http = require('http')
 
+// MongoDB connection
+const dbUrl = process.env.dburl
+mongoose.connect(dbUrl, {useMongoClient: true})
+
+// mongoose.connect('mongodb://localhost/dev-laciobot');
 mongoose.Promise = global.Promise
 
-/**
- * Wrapper of Bot instance
- */
-class Bot {
-  /**
-   * Constructor with params
-   * @param token
-   * @param mode
-   * @param dbCredentials
-   */
-  constructor (token, mode, dbCredentials) {
-    this.token = token
-    this.mode = mode
-    this.bot = this.setMode(this.mode)
-    this.connectWithDb(dbCredentials)
-    require('./lib/index')(this.bot)
-    this.start()
-  }
+mongoose.connection.on('error', function (err) {
+  console.error('el err', err)
+})
 
-  /**
-   * Get bot instance
-   * @return {TelegramBot}
-   */
-  getBot () {
-    return this.bot
-  }
-  /**
-   *
-   * @param mode
-   */
-  setMode (mode) {
-    this.conf = this.getConf()
-    let bot
-    if (mode === 'production') {
-      bot = new TelegramBot(this.conf)
-      bot.setWebhook('https://laciobot.herokuapp.com' + this.token)
-    } else {
-      this.conf.polling = true
-      bot = new TelegramBot(this.conf)
-    }
-    return bot
-  }
+// This is because of Heroku can listen as webhook
+http.createServer(function (request, response) {}).listen(process.env.PORT || 8081)
 
-  /**
-   * Get the configuration in function of mode (env/production)
-   * @return {*}
-   */
-  getConf () {
-    console.log('Bot running in this environment: ', this.mode)
-    return {
-      token: this.token,
-      usePlugins: ['askUser', 'commandButton']
-    }
-  }
+const token = process.env.TOKEN
 
-  /**
-   * Start the bot
-   */
-  start () {
-    this.bot.start()
-  }
-
-  /**
-   * Connect with db
-   * @param dbCredentials
-   * @return {Promise.<void>}
-   */
-  async connectWithDb (dbCredentials) {
-    try {
-      await mongoose.connect(dbCredentials, {useMongoClient: true})
-      console.log('Connected to MongoDB!')
-      await mongoose.connection.on('error', function (err) {
-        console.error('el err', err)
-      })
-    } catch (err) {
-      throw err
-    }
-  }
+const conf = process.env.NODE === 'production' ? {
+  token: token,
+  webhook: { // Optional. Use webhook instead of polling.
+    url: 'https://laciobot.herokuapp.com', // HTTPS url to send updates to.
+    host: '0.0.0.0', // Webhook server host.
+    port: 443, // Server port.
+    maxConnections: 40 // Optional. Maximum allowed number of simultaneous HTTPS connections to the webhook for update delivery
+  },
+  usePlugins: ['askUser', 'commandButton']
+} : {
+  token: token,
+  usePlugins: ['askUser', 'commandButton']
 }
 
-module.exports = Bot
+const bot = new TelegramBot(conf)
+
+// Traer las interfaces de Facade
+require('./lib/index')(bot)
+
+bot.start()

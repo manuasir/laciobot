@@ -22,7 +22,7 @@
     "ava": "^0.22.0"
   },
   "scripts": {
-    "start": "node bot.js",
+    "start": "node index.js",
     "test": "ava"
   },
   "author": "Manuel J. Bernal",
