@@ -18,6 +18,9 @@ http.createServer(function (request, response) {}).listen(process.env.PORT || 80
 
 const token = process.env.TOKEN
 
+if (process.env.NODE === 'production') {
+  console.log('Production environment')
+}
 const conf = process.env.NODE === 'production' ? {
   token: token,
   webhook: { // Optional. Use webhook instead of polling.
