@@ -35,7 +35,7 @@ class Bot {
   async setMode () {
     try{
       if (this.mode === 'production') {
-        await this.bot.setWebhook('https://laciobot.herokuapp.com' + this.token)
+        await this.bot.setWebhook('https://laciobot.herokuapp.com/' + this.token)
       }
       return 0
     } catch(err){
