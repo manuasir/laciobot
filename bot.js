@@ -16,7 +16,6 @@ class Bot {
   constructor (token, mode, dbCredentials) {
     this.token = token
     this.mode = mode
-    this.bot = this.setMode(this.mode)
     this.dbCredentials = dbCredentials
     this.bot = new TelegramBot(this.getBaseConf())
     require('./lib/index')(this.bot)
@@ -82,7 +81,7 @@ class Bot {
       await mongoose.connect(dbCredentials, {useMongoClient: true})
       console.log('Connected to MongoDB!')
       await mongoose.connection.on('error', function (err) {
-        console.error('el err', err)
+        console.error('err at connecting mongodb :(', err)
       })
     } catch (err) {
       throw err
