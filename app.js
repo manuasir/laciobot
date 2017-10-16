@@ -18,8 +18,12 @@ const server = app.listen(process.env.PORT, '0.0.0.0', () => {
 })
 
 module.exports = (bot) => {
-  app.post('/' + bot.token, (req, res) => {
-    bot.getBot().getWebhookInfo()
-    res.sendStatus(200)
+  app.post('/' + bot.token, async (req, res) => {
+    try {
+      console.log('info about webhook: ',await bot.getBot().getWebhookInfo())
+      res.sendStatus(200)
+    } catch(err) {
+      res.sendStatus(404)
+    }
   })
 }

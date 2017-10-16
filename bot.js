@@ -17,9 +17,9 @@ class Bot {
     this.token = token
     this.mode = mode
     this.bot = this.setMode(this.mode)
-    this.connectWithDb(dbCredentials)
+    this.dbCredentials = dbCredentials
+    this.bot = new TelegramBot(this.getBaseConf())
     require('./lib/index')(this.bot)
-    this.start()
   }
 
   /**
@@ -33,36 +33,43 @@ class Bot {
    *
    * @param mode
    */
-  setMode (mode) {
-    this.conf = this.getConf()
-    let bot
-    if (mode === 'production') {
-      bot = new TelegramBot(this.conf)
-      bot.setWebhook('https://laciobot.herokuapp.com' + this.token)
-    } else {
-      this.conf.polling = true
-      bot = new TelegramBot(this.conf)
+  async setMode () {
+    try{
+      if (this.mode === 'production') {
+        await this.bot.setWebhook('https://laciobot.herokuapp.com' + this.token)
+      }
+      return 0
+    } catch(err){
+      throw err
     }
-    return bot
   }
 
   /**
    * Get the configuration in function of mode (env/production)
    * @return {*}
    */
-  getConf () {
+  getBaseConf () {
     console.log('Bot running in this environment: ', this.mode)
-    return {
+    return process.env.NODE === "production" ? {
       token: this.token,
       usePlugins: ['askUser', 'commandButton']
+    } : { token: this.token,
+      usePlugins: ['askUser', 'commandButton'],
+      polling:true
     }
   }
 
   /**
    * Start the bot
    */
-  start () {
-    this.bot.start()
+  async start () {
+    try {
+      await this.setMode()
+      await this.connectWithDb(this.dbCredentials)
+      this.bot.start()
+    } catch(err) {
+      throw err
+    }
   }
 
   /**
