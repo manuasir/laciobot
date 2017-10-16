@@ -1,10 +1,8 @@
 const Bot = require('./bot')
 const bot = new Bot(process.env.TOKEN, process.env.NODE, process.env.dburl)
+require('./app')(bot)
 
 // Loading modules...
-bot.start().then( () => {
-// one it's loaded, start server
-  require('./app')(bot)
-}).catch(e =>{
+bot.start().then( () => {}).catch(e =>{
   console.error('error in somewhere at starting bot ',e)
 })
