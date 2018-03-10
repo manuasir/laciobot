@@ -1,6 +1,6 @@
-const Bot = require('./bot')
+const Bot = require('./lib/bot')
 const bot = new Bot(process.env.TOKEN, process.env.NODE, process.env.dburl)
-require('./app')(process.env.TOKEN)
+require('./lib/app')(process.env.TOKEN)
 
 // Loading modules...
 bot.start().then( () => {}).catch(e =>{
