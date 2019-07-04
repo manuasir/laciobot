@@ -16,15 +16,19 @@
     "node-telegram-bot-api": "^0.28.0",
     "request": "^2.82.0",
     "telebot": "^1.2.3",
-    "urlencode": "^1.1.0"
+    "urlencode": "^1.1.0",
+    "snyk": "^1.189.0"
   },
   "devDependencies": {
     "ava": "^0.22.0"
   },
   "scripts": {
     "start": "node index.js",
-    "test": "ava"
+    "test": "ava",
+    "snyk-protect": "snyk protect",
+    "prepublish": "npm run snyk-protect"
   },
   "author": "Manuel J. Bernal",
-  "license": "MIT"
+  "license": "MIT",
+  "snyk": true
 }
