@@ -8,4 +8,4 @@ const bot = new Bot(process.env.TOKEN, storageRepository)
 bot.start().then().catch(error => {
   console.error('Exiting:', error.message || error)
   process.exit(1)
-}) 
+})
