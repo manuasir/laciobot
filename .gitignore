@@ -1,4 +1,4 @@
-node_modules/
+node_modules
 config.js
 .idea
 *lock.json

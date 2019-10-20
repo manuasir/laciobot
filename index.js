@@ -1,10 +1,12 @@
 const Bot = require('./lib/bot')
-const bot = new Bot(process.env.TOKEN, process.env.NODE, process.env.dburl)
-require('./lib/app')(process.env.TOKEN)
+const Storage = require('./lib/storage/storage')
+const storageRepository = new Storage(process.env.dburl)
+const bot = new Bot(process.env.TOKEN, storageRepository)
 
-// Loading modules...
-bot.start().then( () => {
-  console.log('Started bot')
-}).catch(e =>{
-  console.error('Error starting bot. ',e.message || e)
+
+// Start bot
+
+bot.start().then().catch(error => {
+  console.error('Exiting:', error.message || error)
+  process.exit(1)
 })
