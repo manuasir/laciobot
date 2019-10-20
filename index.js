@@ -3,6 +3,7 @@ const Storage = require('./lib/storage/storage')
 const storageRepository = new Storage(process.env.dburl)
 const bot = new Bot(process.env.TOKEN, storageRepository)
 
+
 // Start bot
 
 bot.start().then().catch(error => {
