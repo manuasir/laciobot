@@ -1,11 +1,8 @@
 {
   "name": "bossbot",
   "version": "1.0.0",
-  "description": "A Telegram bot to add to your groups",
+  "description": "A lazy telegram bot",
   "main": "index.js",
-  "scripts": {
-    "test": "npm test"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/manuasir/laciobot.git"
