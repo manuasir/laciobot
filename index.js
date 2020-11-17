@@ -1,12 +1,9 @@
-const Bot = require('./lib/bot')
+const Bot = require('./lib/telegram/bot')
 const Storage = require('./lib/storage/storage')
+const GeneralFeature = require('./lib/general/general')
 const storageRepository = new Storage(process.env.dburl)
-const bot = new Bot(process.env.TOKEN, storageRepository)
-
-
+const bot = new Bot(process.env.token, storageRepository)
+new GeneralFeature(bot.getBot())
 // Start bot
 
-bot.start().then().catch(error => {
-  console.error('Exiting:', error.message || error)
-  process.exit(1)
-})
+bot.start()
