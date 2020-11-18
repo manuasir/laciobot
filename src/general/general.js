@@ -13,10 +13,10 @@ class GeneralFeatures {
 
 
   compare( a, b ) {
-    if ( a.qty < b.qty ){
+    if ( a.qty > b.qty ){
       return -1
     }
-    if ( a.qty > b.qty ){
+    if ( a.qty < b.qty ){
       return 1
     }
     return 0
@@ -32,14 +32,14 @@ class GeneralFeatures {
       res[value.username].qty ++
       return res
     }, {})
-    console.log('result ',result)
     return result
   }
 
   async getMetrics(msg) {
     try {
-      const words = await Msg.find({ chatId: msg.chat.id })
+      const words = await Msg.find({ chatId: "-452578656" })
       const topUsers = this.getMostActiveUsers(words).sort(this.compare)
+      console.log(topUsers)
       msg.reply.text(`Mensajes enviados en este chat: ${words.length}\nUsuario más activo: ${topUsers[0].username} con ${topUsers[0].qty} mensajes.`)
     } catch (error) {
       console.error(error.message || error)
