@@ -2,105 +2,96 @@ const Msg = require('../db/models/message')
 const User = require('../db/models/user')
 
 class GeneralFeatures {
-
-  constructor(bot) {
+  constructor (bot) {
     this.bot = bot
-    this.bot.on('text', async (msg) => this.read(msg))
-    this.bot.on('/metrics', async (msg) => this.getMetrics(msg))
-    this.bot.on('newChatMembers', async (msg) => this.newUser(msg))
-    this.bot.on('reconnected', async (msg) => this.newUser(msg))
+    this.bot.on('text', (msg) => this.read(msg))
+    this.bot.on('/metrics', (msg) => this.getMetrics(msg))
+    this.bot.on('newChatMembers', (msg) => this.newUser(msg))
   }
 
-
-  compare( a, b ) {
-    if ( a.qty > b.qty ){
+  /**
+   * Compare asc
+   * @param {Object} a
+   * @param {Object} b
+   */
+  compare (a, b) {
+    if (a.qty > b.qty) {
       return -1
     }
-    if ( a.qty < b.qty ){
+    if (a.qty < b.qty) {
       return 1
     }
     return 0
   }
 
-  getMostActiveUsers(users) {
-    let result = []
+  /**
+   * Get most active users
+   * @param {Array<object>} users The array of users
+   */
+  getMsgsByUser (users) {
+    const result = []
     users.reduce((res, value) => {
-      if (!res[value.username]) {
-        res[value.username] = { username: value.username, qty: 0 }
-        result.push(res[value.username])
+      if (!res[value.userId]) {
+        res[value.userId] = { username: value.userId, qty: 0 }
+        result.push(res[value.userId])
       }
-      res[value.username].qty ++
+      res[value.userId].qty++
       return res
     }, {})
     return result
   }
 
-  async getMetrics(msg) {
+  async getMetrics (msg) {
     try {
-      const words = await Msg.find({ chatId: "-452578656" })
-      const topUsers = this.getMostActiveUsers(words).sort(this.compare)
-      console.log(topUsers)
-      msg.reply.text(`Mensajes enviados en este chat: ${words.length}\nUsuario más activo: ${topUsers[0].username} con ${topUsers[0].qty} mensajes.`)
+      const messages = await Msg.find({ chatId: msg.chat.id })
+      const topUsers = this.getMsgsByUser(messages).sort(this.compare)
+      if (!topUsers || !Array.isArray(topUsers) || topUsers.length === 0) {
+        return msg.reply.text(`No se encontraron métricas de usuario 😔`)
+      }
+      for (let user of topUsers){
+        const userDb = await this.getUserById(user.username)
+        user.name = userDb.username
+      }
+      msg.reply.text(`Mensajes enviados en este chat: ${messages.length}\nUsuario más activo: ${topUsers[0].name} con ${topUsers[0].qty} mensajes.`)
     } catch (error) {
       console.error(error.message || error)
       msg.reply.text('Error obteniendo métricas 😔. Consulta los logs internos.')
     }
   }
 
-  async reconnected(msg) {
+  async checkUser (msg) {
     try {
-      let user = new User({
-        username: msg.new_chat_member.username,
-        userId: msg.new_chat_member.id
-      })
-      await user.save()
-      msg.reply.text('Ha entrado un nuevo laci@ en el grupo')
-    } catch (err) {
-      if (err.code === 11000) {
-        let userFromDb = await User.findOne({ username: msg.new_chat_member.username })
-        await userFromDb.save()
-        msg.reply.text('Ha entrado un viejo lacio de nuevo')
-      } else {
-        console.error(err)
-      }
-    }
-  }
-
-  async checkUser(msg) {
-    try {
-      const username = this.getUsername(msg)
-      const userFromDb = await this.getUser(username)
+      const userFromDb = await this.getUserById(msg.from.id)
       if (!userFromDb) {
         await this.saveUser(msg)
-        msg.reply.text('Laci@ @' + `${username}` + ' bienvenid@.')
+        msg.reply.text(`Hola @${msg.from.username || msg.from.first_name || msg.from.id} 🚬`)
       }
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async getUser(username) {
+  async getUserById (userId) {
     try {
-      const user = await User.findOne({ username: username })
-      return user
+      return await User.findOne({ userId: userId })
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async saveUser(msg) {
+  async saveUser (msg) {
     try {
-      const userFromDb = new User({ username: msg.from.username, userId: msg.from.id })
-      await userFromDb.save()
+      const newUser = new User({ username: msg.from.username || msg.from.first_name, userId: msg.from.id })
+      await newUser.save()
     } catch (error) {
       return Promise.reject(error)
     }
   }
 
-  async processMsg(msg) {
+  async processMsg (msg) {
     try {
       if (!msg.text.startsWith('/')) {
-        const msgModel = new Msg({ msg: msg.text, username: msg.from.username || msg.from.id, chatId: msg.chat.id, date: msg.date })
+        const msgModel = new Msg({ msg: msg.text, userId: msg.from.id, chatId: msg.chat.id, date: msg.date })
         await msgModel.save()
       }
     } catch (error) {
@@ -108,11 +99,7 @@ class GeneralFeatures {
     }
   }
 
-  getUsername(msg) {
-    return msg.from.username || msg.from.first_name || msg.from.id
-  }
-
-  async read(msg) {
+  async read (msg) {
     try {
       await this.checkUser(msg)
       await this.processMsg(msg)
@@ -122,23 +109,18 @@ class GeneralFeatures {
     }
   }
 
-  async newUser(msg) {
+  async newUser (msg) {
     try {
-      const username = msg.new_chat_member.username.toLowerCase()
-      let user = new User({
+      const username = msg.new_chat_member.username || msg.new_chat_member.first_name || msg.from.username || msg.from.first_name || msg.from.id
+      const user = new User({
         username: username,
         userId: msg.new_chat_member.id
       })
       await user.save()
-      msg.reply.text('Ha entrado un nuevo laci@ en el grupo')
+      msg.reply.text(`Ha entrado un nuevo laci@ en el grupo, hola ${username} 🚬`)
     } catch (err) {
-      if (err.code === 11000) {
-        let userFromDb = await User.findOne({ username: username })
-        await userFromDb.save()
-        msg.reply.text('Ha entrado un viejo lacio de nuevo')
-      } else {
-        console.error(err)
-      }
+      console.error(err.message || err)
+      msg.reply.text('Error desconocido añadiendo al nuevo usuario 😔. Consulta los logs internos.')
     }
   }
 }

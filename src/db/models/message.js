@@ -4,12 +4,12 @@ const Schema = mongoose.Schema
 /**
  * Mongoose Message Schema
  */
-let msgSchema = new Schema({
+const msgSchema = new Schema({
   msg: {
     type: String,
     required: true
   },
-  username: {
+  userId: {
     type: String,
     required: true
   },

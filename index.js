@@ -3,6 +3,7 @@ const Storage = require('./src/storage/storage')
 const GeneralFeature = require('./src/general/general')
 const storageRepository = new Storage(process.env.dburl)
 const bot = new Bot(process.env.token, storageRepository)
+/* eslint no-new: "error" */
 new GeneralFeature(bot.getBot())
 // Start bot
 

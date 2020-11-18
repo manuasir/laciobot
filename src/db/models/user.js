@@ -4,14 +4,14 @@ const Schema = mongoose.Schema
 /**
  * Mongoose User Schema
  */
-let userSchema = new Schema({
+const userSchema = new Schema({
   username: {
     type: String,
     required: true,
     unique: true
   },
   userId: {
-    type: Number,
+    type: String,
     required: true,
     unique: true
   },

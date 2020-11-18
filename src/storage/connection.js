@@ -14,13 +14,12 @@ class Connection {
    * Connect with db
    * @return {Promise.<void>}
    */
-  async connectWithDb(dbCredentials) {
+  async connectWithDb (dbCredentials) {
     try {
-      if(!dbCredentials) {
+      if (!dbCredentials) {
         throw new Error('Required credentials.')
       }
       await mongoose.connect(dbCredentials, { useNewUrlParser: true, useUnifiedTopology: true })
-      console.log('Connected to MongoDB!')
       mongoose.connection.on('error', (err) => {
         throw Error(err)
       })
