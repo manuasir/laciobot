@@ -52,10 +52,10 @@ class GeneralFeatures {
         const userDb = await this.getUserById(user.username)
         user.name = userDb.username
       }
-      msg.reply.text(`Mensajes enviados en este chat: ${messages.length}\nUsuario más activo: ${topUsers[0].name} con ${topUsers[0].qty} mensajes.`)
+      await msg.reply.text(`Mensajes enviados en este chat: ${messages.length}\nUsuario más activo: ${topUsers[0].name} con ${topUsers[0].qty} mensajes.`)
     } catch (error) {
       console.error(error.message || error)
-      msg.reply.text('Error obteniendo métricas 😔. Consulta los logs internos.')
+      return msg.reply.text('Error obteniendo métricas 😔. Consulta los logs internos.')
     }
   }
 
