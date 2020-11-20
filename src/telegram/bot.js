@@ -1,16 +1,16 @@
 const Telebot = require('telebot')
 
 class Bot {
-  constructor (token, storage) {
-    this.bot = new Telebot(token)
+  constructor(token, storage) {
+    this.bot = new Telebot({ token: token, usePlugins: ['askUser', 'commandButton'] })
     this.storage = storage
   }
 
-  getBot () {
+  getBot() {
     return this.bot
   }
 
-  async help (msg) {
+  async help(msg) {
     try {
       const msgStr =
 
@@ -24,7 +24,7 @@ class Bot {
     }
   }
 
-  start () {
+  start() {
     try {
       this.bot.on(['/start', '/hello'], (msg) => msg.reply.text('Estoy de nuevo por aqui'))
       this.bot.on(['/help'], (msg) => this.help(msg))
