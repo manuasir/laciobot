@@ -7,11 +7,13 @@ const Schema = mongoose.Schema
 const msgSchema = new Schema({
   msg: {
     type: String,
-    required: true
+    required: true,
+    unique: false
   },
   userId: {
     type: String,
-    required: true
+    required: true,
+    unique: false
   },
   chatId: {
     type: String,
@@ -19,7 +21,8 @@ const msgSchema = new Schema({
   },
   date: {
     type: String,
-    required: true
+    required: true,
+    unique: false
   }
 })
 

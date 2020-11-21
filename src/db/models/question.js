@@ -4,22 +4,31 @@ const Schema = mongoose.Schema
 /**
  * Mongoose User Schema
  */
-const userSchema = new Schema({
-  username: {
-    type: String,
-    required: true,
-    unique: false
-  },
+const questionSchema = new Schema({
+
   userId: {
     type: String,
     required: true,
     unique: false
+
   },
-  advices: {
-    type: Number,
-    default: 0,
+  category: {
+    type: String,
+    required: true,
+    unique: false
+
+  },
+  result: {
+    type: String,
+    required: true,
+    unique: false
+
+  },
+  chatId: {
+    type: String,
+    required: true,
     unique: false
   }
 })
 
-module.exports = mongoose.model('users', userSchema)
+module.exports = mongoose.model('questions', questionSchema)
