@@ -83,7 +83,7 @@ class Trivia {
 
   getCategoryById(categoryId) {
     const entries = Object.entries(categories)
-    const filtered = entries.filter(item => item[1] == categoryId)[0]
+    const filtered = entries.filter(item => item[1] == categoryId)[0][0]
     return filtered
   }
 
