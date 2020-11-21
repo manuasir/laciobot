@@ -3,3 +3,4 @@ config.js
 .idea
 *lock.json
 .tokens.env
+*.log
