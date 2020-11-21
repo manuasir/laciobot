@@ -104,10 +104,10 @@ class Trivia {
   async translateFullQuestion(question) {
     try {
       const str = `${question.question};${question.answers.map(item => item.answer).join(';')}`
-      const msgs = await this.translate(str)
-      const splittedAnswers = msgs.split(';')
+      const translatedQuestion = await this.translate(str)
+      const splittedAnswers = translatedQuestion.split(';')
       question['question'] = splittedAnswers[0]
-      question.answers.map((item, i) => item.answer = `${splittedAnswers[i + 1]} (${item.answer})`)
+      question.answers.map((item, i) => item.answer = `${splittedAnswers[i + 1]}`)
       return question
     } catch (error) {
       return Promise.reject(error.message || error)
@@ -124,7 +124,7 @@ class Trivia {
       if (!category || !categoryId || isNaN(categoryId)) {
         return this.help(msg)
       }
-      const question = await this.getFormattedQuestion(categoryId, msg.chat.id)
+      const question = await this.getFormattedQuestion(categoryId)
       const translatedQuestion = await this.translateFullQuestion(question)
       const buttons = translatedQuestion.answers.map((item) => {
         item.c = categoryId
@@ -141,7 +141,13 @@ class Trivia {
     }
   }
 
-  async getFormattedQuestion(catId, chatId) {
+  sanitizeString(str){
+    const removeComma = str.replace(',','')
+    const removePoints = removeComma.replace('.','')
+    return removePoints.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  }
+
+  async getFormattedQuestion(catId) {
     try {
       const result = await got(`${this.url}&category=${catId}`)
       if (!result || !result.body || typeof result.body !== 'string' || result.body.length === 0) {
@@ -152,13 +158,17 @@ class Trivia {
         throw new Error('Empty question')
       }
       const finalQuestion = questionObj.results[0]
+      const randomIndex = Math.floor(Math.random() * finalQuestion.incorrect_answers.length - 1)
       const finalObj = {
         question: this.entities.decode(finalQuestion.question),
         answers: [
-          ...finalQuestion.incorrect_answers.map((item) => { return { answer: item, isCorrect: false } }),
-          { answer: finalQuestion.correct_answer, isCorrect: true }
+          ...finalQuestion.incorrect_answers.map((item) => {
+            //if(item.length > 29) item = item.substring(0,26)+'...'
+            return { answer: this.entities.decode(this.sanitizeString(item)), isCorrect: false }
+          })
         ]
       }
+      finalObj.answers.splice(randomIndex, 0, { answer: finalQuestion.correct_answer, isCorrect: true })
       return finalObj
       // return {
       //   question: 'The colour of the pills in the Matrix were Blue and Yellow.',
