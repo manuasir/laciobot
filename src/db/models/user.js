@@ -4,20 +4,21 @@ const Schema = mongoose.Schema
 /**
  * Mongoose User Schema
  */
-let userSchema = new Schema({
+const userSchema = new Schema({
   username: {
     type: String,
     required: true,
-    unique: true
+    unique: false
   },
   userId: {
-    type: Number,
+    type: String,
     required: true,
-    unique: true
+    unique: false
   },
   advices: {
     type: Number,
-    default: 0
+    default: 0,
+    unique: false
   }
 })
 

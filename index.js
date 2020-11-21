@@ -1,10 +1,13 @@
-const Bot = require('./lib/bot')
-const bot = new Bot(process.env.TOKEN, process.env.NODE, process.env.dburl)
-require('./lib/app')(process.env.TOKEN)
+const Bot = require('./src/telegram/bot')
+const Storage = require('./src/storage/storage')
+const GeneralFeature = require('./src/general/general')
+const Trivia = require('./src/trivia/trivia')
 
-// Loading modules...
-bot.start().then( () => {
-  console.log('Started bot')
-}).catch(e =>{
-  console.error('Error starting bot. ',e.message || e)
-})
+const storageRepository = new Storage(process.env.dburl)
+const bot = new Bot(process.env.token, storageRepository)
+/* eslint no-new: "error" */
+new GeneralFeature(bot.getBot())
+new Trivia(bot.getBot())
+// Start bot
+
+bot.start()

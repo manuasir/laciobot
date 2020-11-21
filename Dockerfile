@@ -1,21 +1,12 @@
-FROM arm32v7/node
+FROM node:15.0.0-alpine3.10
 
-ENV dburl ""
-ENV NODE production
-ENV TOKEN ""
-# Create app directory
-WORKDIR /usr/src/laciobot
- 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+WORKDIR /usr/src/app
+
 COPY package*.json ./
 
-# RUN npm install
-# If you are building your code for production
-RUN npm install
+RUN yarn
 
-# Bundle app source
-COPY . .
+COPY index.js .
+COPY src ./src
 
 CMD [ "node", "index.js" ]

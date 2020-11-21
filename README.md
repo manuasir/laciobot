@@ -2,10 +2,11 @@
 [![Code-Style](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com/)
 
 # Laciobot
-Telegram bot for homies
+Telegram bot for groups with your lads.
+
 # Features:
 - Movies recommendations
 - TV Shows recommendations
-- Trivia Quiz
-- Votations
+- Quiz
 - Contact guide
+- Metrics
