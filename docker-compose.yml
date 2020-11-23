@@ -1,6 +1,6 @@
 version: "3"
 services:
-  bot:
+  laciobot:
     build: .
     env_file:
       - .tokens.env
