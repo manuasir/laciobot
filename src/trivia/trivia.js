@@ -55,14 +55,16 @@ class Trivia {
   async callback(msg) {
     try {
       // Send confirm check
+
       this.bot.answerCallbackQuery(msg.id)
       const data = JSON.parse(msg.data)
-      if (typeof data.isCorrect !== 'boolean') {
+      const chatId = msg.message.chat.id
+      if (!this.lastMessage || !this.lastMessage[chatId] || !this.lastMessage[chatId].mayClick || typeof data.isCorrect !== 'boolean') {
         return
       }
-      const chatId = msg.message.chat.id
+      this.lastMessage[chatId].mayClick = false
       const userId = msg.from.id
-      const messageId = this.lastMessage[chatId]
+      const messageId = this.lastMessage[chatId].msgId
       const category = data.c
       const replyMarkup = this.updateKeyboard(data.isCorrect)
       // Edit message markup
@@ -97,14 +99,25 @@ class Trivia {
       const jsonRes = JSON.parse(result.body)
       return jsonRes[0][0][0]
     } catch (error) {
-      return Promise.reject(error.message || error)
+      const nonTranslatedWords = { error: 'Translator does not work', words: words }
+      return Promise.reject(nonTranslatedWords)
     }
+  }
+
+  async checkTraductorAvailability(str) {
+    return new Promise((resolve,reject) => {
+      this.translate(str).then(data => {
+        return resolve(data)
+      }).catch((error) => {
+        return resolve(error.words)
+      })
+    })
   }
 
   async translateFullQuestion(question) {
     try {
       const str = `${question.question};${question.answers.map(item => item.answer).join(';')}`
-      const translatedQuestion = await this.translate(str)
+      const translatedQuestion = await this.checkTraductorAvailability(str)
       const splittedAnswers = translatedQuestion.split(';')
       question['question'] = splittedAnswers[0]
       question.answers.map((item, i) => item.answer = `${splittedAnswers[i + 1]}`)
@@ -134,17 +147,19 @@ class Trivia {
       })
       const replyMarkup = this.bot.inlineKeyboard(buttons, { resize: true })
       const data = await this.bot.sendMessage(msg.chat.id, translatedQuestion.question, { replyMarkup })
-      this.lastMessage[msg.chat.id] = data.message_id
+      this.lastMessage[msg.chat.id] = { msgId: data.message_id, mayClick: true }
     } catch (error) {
       console.error(error.message || error)
       msg.reply.text('No pude generar la pregunta 😔 sorry pish')
     }
   }
 
-  sanitizeString(str){
-    const removeComma = str.replace(',','')
-    const removePoints = removeComma.replace('.','')
-    return removePoints.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  sanitizeString(str) {
+    return str.replace(/\&/g, 'and').replace(/\:/g, ' ').replace(/\-/g, ' ').replace(/\(/g, ' ').replace(/\)/g, ' ').replace(/\,/g, ' ').replace(/\./g, ' ').replace(/\;/g, ' ')
+  }
+
+  cutStr(item, size) {
+    return item.substring(0, size).trim()
   }
 
   async getFormattedQuestion(catId) {
@@ -160,24 +175,21 @@ class Trivia {
       const finalQuestion = questionObj.results[0]
       const randomIndex = Math.floor(Math.random() * finalQuestion.incorrect_answers.length - 1)
       const finalObj = {
-        question: this.entities.decode(finalQuestion.question),
+        question: this.entities.decode(finalQuestion.question).replace(/\;/g, ':'),
         answers: [
           ...finalQuestion.incorrect_answers.map((item) => {
-            //if(item.length > 29) item = item.substring(0,26)+'...'
+            if (item.length >= 26) {
+              item = this.cutStr(item, 26)
+            }
             return { answer: this.entities.decode(this.sanitizeString(item)), isCorrect: false }
           })
         ]
       }
-      finalObj.answers.splice(randomIndex, 0, { answer: finalQuestion.correct_answer, isCorrect: true })
+      const correctAnswer = this.cutStr(this.sanitizeString(finalQuestion.correct_answer), 26)
+      finalObj.answers.splice(randomIndex, 0, { answer: correctAnswer, isCorrect: true })
       return finalObj
-      // return {
-      //   question: 'The colour of the pills in the Matrix were Blue and Yellow.',
-      //   answers: [
-      //     { answer: 'True', isCorrect: true },
-      //     { answer: 'False', isCorrect: false }
-      //   ]
-      // }
     } catch (error) {
+      console.error('error making obj ', error)
       return Promise.reject(error)
     }
   }
